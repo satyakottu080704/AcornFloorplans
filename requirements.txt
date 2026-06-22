@@ -1,0 +1,66 @@
+# Acorn Atlas Floor Plan Generator - Requirements
+
+# Core ML
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+
+# Image processing
+numpy>=1.20.0
+scipy>=1.10.0          # pipeline.merge_results — Hungarian label<->room matching
+opencv-python>=4.5.0
+Pillow>=10.0.0
+
+# Visio Export — Windows COM automation (Windows only; no Linux wheel exists)
+pywin32>=306; sys_platform == "win32"
+
+# Visio Export — native renderer for Linux/macOS (no Microsoft Visio required)
+aspose-diagram>=24.1.0
+
+# HTTP / env
+httpx>=0.24.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+python-dateutil>=2.8.0
+
+# Plans HTTP service (plans_service.py — runs on the acorn_reporting container)
+Flask>=3.0.0
+gunicorn>=21.2.0
+
+# Draw service (draw_service.py — FastAPI plan-rendering endpoint)
+fastapi>=0.110.0
+uvicorn>=0.27.0
+python-multipart>=0.0.9
+
+# Data
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# Plan output formats (SVG / PDF / drawio)
+reportlab>=4.0.0
+svgwrite>=1.4.0
+
+# AI providers (Alpha Tracker / Automation pipeline)
+openai>=1.0.0
+groq>=0.9.0
+anthropic>=0.18.0
+
+# Config hot-reload (optional, used by utils/config_manager.py)
+watchdog>=3.0.0
+
+# Tests
+pytest>=7.4.0
+typing-extensions>=4.8.0
+
+# Optional - for YOLO training
+tqdm>=4.60.0
+matplotlib>=3.4.0
+
+# Optional - OCR for room labels
+# pytesseract>=0.3.10   # requires Tesseract OCR installed on the OS
+# rapidocr-onnxruntime>=1.3.0
+# paddleocr>=2.6.0
+# easyocr>=1.6.0
+
+# Optional - watershed strategy
+# scikit-image>=0.19.0

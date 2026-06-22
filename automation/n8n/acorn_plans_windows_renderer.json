@@ -1,0 +1,236 @@
+{
+  "id": "acornWinRender01",
+  "name": "Acorn Plans — Inbox → Windows Renderer (business hours)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "*/10 7-18 * * 1-5" } ] } },
+      "id": "989c306f-5fed-45c1-93d4-b3df91962cad",
+      "name": "Every 10 min (business hrs)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [380, 540]
+    },
+    {
+      "parameters": { "url": "http://16.61.179.204:8765/ready", "options": { "timeout": 8000 } },
+      "id": "9f3e682e-2dc2-404a-9ed7-adba5e98a3fe",
+      "name": "Wait for /ready (poll until renderable)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [580, 540],
+      "retryOnFail": true,
+      "maxTries": 8,
+      "waitBetweenTries": 15000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": { "operation": "getAll", "limit": 10, "options": {} },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [780, 500],
+      "id": "0461ec2c-98a3-484e-a9b8-1acbf23560e5",
+      "name": "Get unread Plans emails",
+      "webhookId": "f649f11e-c672-4691-b83d-5071570cda02",
+      "credentials": { "microsoftOutlookOAuth2Api": { "id": "FNq1tabrcjylXbSd", "name": "Plans-Acornhealthandsafety" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pull the N-number from each plan email; drop emails without one.\nconst out = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const j = items[i].json;\n  const text = `${j.subject || ''} ${j.bodyPreview || ''}`;\n  const m = text.match(/N-\\d{4,10}/i);\n  if (!m) continue;\n  out.push({ json: { projectNumber: m[0].toUpperCase(), messageId: j.id, subject: j.subject || '' }, pairedItem: { item: i } });\n}\nreturn out;"
+      },
+      "id": "8d6ef152-39c4-4c64-933c-de1778459262",
+      "name": "Extract N-number",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [980, 500]
+    },
+    {
+      "parameters": {
+        "resource": "messageAttachment",
+        "operation": "getAll",
+        "messageId": { "__rl": true, "value": "={{ $json.messageId }}", "mode": "id" },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [1180, 500],
+      "id": "e5a21861-8d5f-454f-ad4d-7ff4b154ea3f",
+      "name": "Get attachments",
+      "webhookId": "2f806370-eec3-4e53-a281-111265d72d33",
+      "credentials": { "microsoftOutlookOAuth2Api": { "id": "FNq1tabrcjylXbSd", "name": "Plans-Acornhealthandsafety" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 1 },
+          "conditions": [
+            { "id": "cond_img", "leftValue": "={{ $json.name }}", "rightValue": "\\.(jpe?g|png)$", "operator": { "type": "string", "operation": "regex" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "edc9cc18-5120-40d4-90d2-181ff8996103",
+      "name": "Keep image attachments",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1380, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Keep only the FIRST image per project (multi-image emails).\nconst out = [];\nconst seen = new Set();\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  let key;\n  try { key = $('Extract N-number').itemMatching(i).json.projectNumber; }\n  catch (e) { key = items[i].json.id; }\n  if (seen.has(key)) continue;\n  seen.add(key);\n  out.push(items[i]);\n}\nreturn out;"
+      },
+      "id": "ed0bcef2-9f3b-42bf-bf7c-2ae5c47a8ab4",
+      "name": "First image per project",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1580, 500]
+    },
+    {
+      "parameters": {
+        "resource": "messageAttachment",
+        "operation": "download",
+        "messageId": { "__rl": true, "value": "={{ $('Extract N-number').item.json.messageId }}", "mode": "id" },
+        "attachmentId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [1780, 500],
+      "id": "9950768e-af0a-46a1-a2d3-f9c9921c443a",
+      "name": "Download sketch",
+      "webhookId": "ac5411b0-8ce5-4df9-b537-620a87e90a2b",
+      "credentials": { "microsoftOutlookOAuth2Api": { "id": "FNq1tabrcjylXbSd", "name": "Plans-Acornhealthandsafety" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Per-project filename + carry projectNumber & messageId into json so the\n// loop body (Render/Upload/Mark-read) can read them from the current item.\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const ex = $('Extract N-number').itemMatching(i).json;\n  const pn = ex.projectNumber;\n  const mid = ex.messageId;\n  const b = items[i].binary && items[i].binary.data;\n  const ext = ((b && b.fileName ? b.fileName : 'x.jpg').split('.').pop() || 'jpg').toLowerCase();\n  const sketchFile = `${pn}_sketch.${ext}`;\n  if (b) b.fileName = sketchFile;\n  items[i].json = { ...items[i].json, projectNumber: pn, messageId: mid, sketchFile };\n}\nreturn items;"
+      },
+      "id": "92e23b3b-8ddc-485b-baeb-81014e840a59",
+      "name": "Name sketch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1980, 500]
+    },
+    {
+      "parameters": { "batchSize": 1, "options": {} },
+      "id": "10ab0001-0000-0000-0000-000000000001",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [2180, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://16.61.179.204:8765/render?project={{ $json.projectNumber }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Auth-Token", "value": "Acorn-Render-2026-SuperSecretToken123456789" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } },
+          "timeout": 180000
+        }
+      },
+      "id": "ce52c1bf-4aac-47e2-bfa2-603a899747ac",
+      "name": "Render (POST 8765)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2420, 420],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://graph.microsoft.com/v1.0/drives/b!GE0XZSrs9Emo4dgn9nK_QRQ6U_cuYhFPlEx0fNOgGvy_Kq55htFrSpAxi-5mI0aO/root:/{{ ('General/AI Automation/Generated_Plans/' + $binary.data.fileName).replaceAll(' ', '%20') }}:/content",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": { "timeout": 120000 }
+      },
+      "id": "b7c9d1e2-1111-2222-3333-444455556666",
+      "name": "Upload to SharePoint",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2620, 420],
+      "onError": "continueErrorOutput",
+      "credentials": { "oAuth2Api": { "id": "REPLACE_WITH_YOUR_GRAPH_OAUTH2_CRED_ID", "name": "Acorn Graph App-Only" } }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "messageId": { "__rl": true, "value": "={{ $('Loop Over Items').item.json.messageId }}", "mode": "id" },
+        "updateFields": { "isRead": true }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [2820, 420],
+      "id": "d45ea78d-e28b-4c83-ad99-e36cc5a3e363",
+      "name": "Mark email as read",
+      "webhookId": "d43ac0c2-a99a-48d5-be03-effc76e36081",
+      "credentials": { "microsoftOutlookOAuth2Api": { "id": "FNq1tabrcjylXbSd", "name": "Plans-Acornhealthandsafety" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "donedone1-0000-0000-0000-000000000002",
+      "name": "Batch done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2420, 620]
+    },
+    {
+      "parameters": {},
+      "id": "3442964e-f341-4187-a8b1-04d6c28f3013",
+      "name": "Skip (VM down — retry next cycle)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [780, 720]
+    }
+  ],
+  "connections": {
+    "Every 10 min (business hrs)": { "main": [[{ "node": "Wait for /ready (poll until renderable)", "type": "main", "index": 0 }]] },
+    "Wait for /ready (poll until renderable)": {
+      "main": [
+        [{ "node": "Get unread Plans emails", "type": "main", "index": 0 }],
+        [{ "node": "Skip (VM down — retry next cycle)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get unread Plans emails": { "main": [[{ "node": "Extract N-number", "type": "main", "index": 0 }]] },
+    "Extract N-number": { "main": [[{ "node": "Get attachments", "type": "main", "index": 0 }]] },
+    "Get attachments": { "main": [[{ "node": "Keep image attachments", "type": "main", "index": 0 }]] },
+    "Keep image attachments": { "main": [[{ "node": "First image per project", "type": "main", "index": 0 }]] },
+    "First image per project": { "main": [[{ "node": "Download sketch", "type": "main", "index": 0 }]] },
+    "Download sketch": { "main": [[{ "node": "Name sketch", "type": "main", "index": 0 }]] },
+    "Name sketch": { "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]] },
+    "Loop Over Items": {
+      "main": [
+        [{ "node": "Batch done", "type": "main", "index": 0 }],
+        [{ "node": "Render (POST 8765)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Render (POST 8765)": {
+      "main": [
+        [{ "node": "Upload to SharePoint", "type": "main", "index": 0 }],
+        [{ "node": "Loop Over Items", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload to SharePoint": {
+      "main": [
+        [{ "node": "Mark email as read", "type": "main", "index": 0 }],
+        [{ "node": "Loop Over Items", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark email as read": { "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "binaryMode": "separate" },
+  "pinData": {}
+}

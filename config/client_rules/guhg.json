@@ -1,0 +1,71 @@
+{
+  "client_name": "GUHG (Great Yarmouth & Waveney Housing Group)",
+  "client_patterns": [
+    "guhg",
+    "great yarmouth",
+    "waveney housing"
+  ],
+  "validation_rules": {
+    "scope_requirements": {
+      "min_length": 40,
+      "must_include_keywords": [
+        "property",
+        "survey"
+      ],
+      "description": "GUHG requires property type and survey scope documented"
+    },
+    "photo_requirements": {
+      "minimum_photos": 2,
+      "required_for_000": true,
+      "required_for_999": true,
+      "description": "Standard photo requirements"
+    },
+    "no_access_limit": null,
+    "tenant_friendly_language": {
+      "enabled": true,
+      "max_technical_terms": 3,
+      "description": "Reports may be shared with tenants - avoid excessive jargon"
+    },
+    "special_validations": [
+      {
+        "rule": "check_property_type",
+        "description": "Must identify property type (flat, house, bungalow, etc.)",
+        "severity": "WARNING"
+      },
+      {
+        "rule": "check_plain_language",
+        "description": "Flag excessive technical jargon for tenant-facing reports",
+        "severity": "WARNING"
+      },
+      {
+        "rule": "check_void_property",
+        "description": "Void properties must not have stale tenant contact details",
+        "severity": "WARNING"
+      }
+    ]
+  },
+  "auto_populate": {
+    "scope_from_notes": true,
+    "999_generation": true,
+    "pra_defaults": true,
+    "no_access_reasons": true
+  },
+  "field_requirements": {
+    "building_details": {
+      "required": true,
+      "min_length": 20,
+      "must_include": [
+        "property type"
+      ]
+    },
+    "surveyor_name": {
+      "required": true,
+      "validation": "non_empty"
+    }
+  },
+  "metadata": {
+    "created": "2026-02-10",
+    "version": "1.0",
+    "notes": "Housing association client - reports must be tenant-friendly with plain language"
+  }
+}

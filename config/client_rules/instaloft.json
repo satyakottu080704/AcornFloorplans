@@ -1,0 +1,74 @@
+{
+  "client_name": "Instaloft",
+  "client_patterns": [
+    "instaloft"
+  ],
+  "validation_rules": {
+    "scope_requirements": {
+      "min_length": 30,
+      "must_include_keywords": [
+        "loft"
+      ],
+      "description": "Instaloft surveys must reference loft access"
+    },
+    "photo_requirements": {
+      "minimum_photos": 2,
+      "required_for_000": true,
+      "required_for_999": true,
+      "description": "Standard photo requirements"
+    },
+    "loft_specific": {
+      "require_loft_access_info": true,
+      "loft_keywords": [
+        "loft",
+        "hatch",
+        "ladder",
+        "attic",
+        "roof space"
+      ],
+      "construction_keywords": [
+        "timber",
+        "rafter",
+        "joist",
+        "insulation",
+        "felt",
+        "boarding"
+      ],
+      "description": "Loft surveys must document loft construction and access details"
+    },
+    "no_access_limit": null,
+    "special_validations": [
+      {
+        "rule": "check_loft_access_info",
+        "description": "Scope must contain loft access information",
+        "severity": "WARNING"
+      },
+      {
+        "rule": "check_loft_construction",
+        "description": "999 must describe loft construction details",
+        "severity": "WARNING"
+      }
+    ]
+  },
+  "auto_populate": {
+    "scope_from_notes": true,
+    "999_generation": true,
+    "pra_defaults": true,
+    "no_access_reasons": true
+  },
+  "field_requirements": {
+    "building_details": {
+      "required": true,
+      "min_length": 20
+    },
+    "surveyor_name": {
+      "required": true,
+      "validation": "non_empty"
+    }
+  },
+  "metadata": {
+    "created": "2026-02-10",
+    "version": "1.0",
+    "notes": "Loft insulation survey client - focus on loft construction and access documentation"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "client_name": "Indurent",
+  "client_patterns": [
+    "indurent",
+    "indurent property"
+  ],
+  "validation_rules": {
+    "no_access_limit": {
+      "max_items": 2,
+      "fail_if_exceeded": true,
+      "message": "Indurent projects limited to 2 No-Access items maximum. Additional areas require surveyor to arrange re-visit.",
+      "description": "Strict No-Access limit per client requirements"
+    },
+    "presumed_samples": {
+      "required": true,
+      "message": "Indurent requires presumed samples for all ACM. No exceptions allowed.",
+      "severity": "BLOCKER",
+      "description": "All ACM must have presumed status set"
+    },
+    "photo_requirements": {
+      "minimum_photos": 3,
+      "required_for_000": true,
+      "description": "Minimum 3 photos required including front sheet photo"
+    },
+    "scope_requirements": {
+      "min_length": 50,
+      "must_include_keywords": [
+        "building name",
+        "survey type",
+        "accessible areas"
+      ],
+      "description": "Detailed scope required for Indurent projects"
+    },
+    "special_validations": [
+      {
+        "rule": "check_all_acm_presumed",
+        "description": "Verify all ACM items marked as presumed",
+        "severity": "BLOCKER"
+      },
+      {
+        "rule": "verify_no_access_justification",
+        "description": "No-Access items require detailed justification",
+        "severity": "FAIL"
+      }
+    ]
+  },
+  "auto_populate": {
+    "scope_from_notes": true,
+    "999_generation": true,
+    "pra_defaults": false,
+    "no_access_reasons": true
+  },
+  "field_requirements": {
+    "building_details": {
+      "required": true,
+      "min_length": 30
+    },
+    "special_instructions": {
+      "required": false,
+      "max_length": 500
+    }
+  },
+  "escalation_rules": {
+    "always_escalate_if": {
+      "no_access_count_exceeded": true,
+      "missing_presumed_samples": true,
+      "insufficient_photos": true
+    },
+    "escalation_contact": "indurent-qa@example.com"
+  },
+  "metadata": {
+    "created": "2025-01-10",
+    "version": "1.0",
+    "contact": "indurent-team@example.com",
+    "notes": "Strict validation rules for Indurent property surveys. No-Access limit and presumed samples are critical requirements."
+  }
+}

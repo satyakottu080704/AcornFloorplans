@@ -1,0 +1,59 @@
+{
+  "client_name": "London Energy",
+  "client_patterns": [
+    "london energy",
+    "ramboll"
+  ],
+  "validation_rules": {
+    "scope_requirements": {
+      "min_length": 50,
+      "description": "London Energy requires detailed room-by-room scope"
+    },
+    "photo_requirements": {
+      "minimum_photos": 2,
+      "required_for_000": true,
+      "required_for_999": true,
+      "per_room_photos": true,
+      "description": "Photos required for each surveyed room"
+    },
+    "multiple_999": {
+      "enabled": true,
+      "minimum_entries": 2,
+      "description": "London Energy requires separate 999 entry per room surveyed"
+    },
+    "no_access_limit": null,
+    "special_validations": [
+      {
+        "rule": "check_multiple_999",
+        "description": "Verify separate 999 per room",
+        "severity": "WARNING"
+      },
+      {
+        "rule": "check_room_naming",
+        "description": "Room names must be consistent across items and samples",
+        "severity": "WARNING"
+      }
+    ]
+  },
+  "auto_populate": {
+    "scope_from_notes": true,
+    "999_generation": true,
+    "pra_defaults": true,
+    "no_access_reasons": true
+  },
+  "field_requirements": {
+    "building_details": {
+      "required": true,
+      "min_length": 25
+    },
+    "surveyor_name": {
+      "required": true,
+      "validation": "non_empty"
+    }
+  },
+  "metadata": {
+    "created": "2026-02-10",
+    "version": "1.0",
+    "notes": "London Energy uses per-room 999 entries and enhanced room detail"
+  }
+}

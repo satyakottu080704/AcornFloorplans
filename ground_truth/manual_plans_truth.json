@@ -1,0 +1,177 @@
+{
+  "_about": "Structured ground truth transcribed from Acorn's MANUAL plans (the team's finished .vsd plans, via their .jpg previews in 'Plans for Surya'). This is the answer key: for each project, the rooms (number + name + floor), the asbestos samples, and stairs presence. Use the STRUCTURAL metrics in plans/ground_truth_eval.py (label / room_number / floor / sample match) — NOT bbox-IoU room F1, because the manual plan and the surveyor sketch live in different coordinate spaces, so bbox overlap between them is meaningless. To score the pipeline you still need the matching INPUT SKETCH per project number; run the pipeline on it and compare its rooms/samples to these.",
+  "_transcribed_by": "claude-opus-4-8 from plan previews; verify against the .vsd if a value looks off",
+  "_sample_size": 8,
+  "projects": {
+    "N-105325": {
+      "rooms": [
+        {"room_number": "001", "label": "Loft", "floor": "Loft"},
+        {"room_number": "008", "label": "Hall", "floor": "Ground Floor"},
+        {"room_number": "009", "label": "Lounge", "floor": "Ground Floor"},
+        {"room_number": "011", "label": "Cupboard", "floor": "Ground Floor"},
+        {"room_number": "012", "label": "Kitchen", "floor": "Ground Floor"},
+        {"room_number": "013", "label": "", "floor": "Ground Floor"},
+        {"room_number": "014", "label": "Utility", "floor": "Ground Floor"},
+        {"room_number": "015", "label": "WC", "floor": "Ground Floor"},
+        {"room_number": "002", "label": "Lobby", "floor": "First Floor"},
+        {"room_number": "003", "label": "Bathroom", "floor": "First Floor"},
+        {"room_number": "004", "label": "Cupboard", "floor": "First Floor"},
+        {"room_number": "005", "label": "Bedroom", "floor": "First Floor"},
+        {"room_number": "006", "label": "Cupboard", "floor": "First Floor"},
+        {"room_number": "007", "label": "Bedroom", "floor": "First Floor"}
+      ],
+      "samples": ["S001", "S002", "S003", "S004", "S005", "S006", "S007", "S008"]
+    },
+    "N-104086": {
+      "rooms": [
+        {"room_number": "001", "label": "Kitchen", "floor": "Ground Floor"},
+        {"room_number": "002", "label": "Lobby", "floor": "Ground Floor"},
+        {"room_number": "003", "label": "Bedroom", "floor": "Ground Floor"},
+        {"room_number": "004", "label": "Bedroom", "floor": "Ground Floor"},
+        {"room_number": "005", "label": "Bedroom", "floor": "Ground Floor"},
+        {"room_number": "006", "label": "Bathroom", "floor": "Ground Floor"},
+        {"room_number": "007", "label": "WC", "floor": "Ground Floor"},
+        {"room_number": "008", "label": "Store", "floor": "Ground Floor"},
+        {"room_number": "009", "label": "Lounge", "floor": "Ground Floor"},
+        {"room_number": "010", "label": "Loft", "floor": "Loft"}
+      ],
+      "samples": ["S001", "S002", "S003", "S004", "S005", "S006"]
+    },
+    "N-104085": {
+      "rooms": [
+        {"room_number": "001", "label": "Loft", "floor": "Loft"},
+        {"room_number": "007", "label": "Hall", "floor": "First Floor"},
+        {"room_number": "008", "label": "Bedroom 3", "floor": "First Floor"},
+        {"room_number": "009", "label": "Bedroom 4", "floor": "First Floor"},
+        {"room_number": "002", "label": "Bathroom", "floor": "Second Floor"},
+        {"room_number": "003", "label": "Cupboard", "floor": "Second Floor"},
+        {"room_number": "004", "label": "Bedroom 1", "floor": "Second Floor"},
+        {"room_number": "005", "label": "Landing", "floor": "Second Floor"},
+        {"room_number": "006", "label": "Bedroom 2", "floor": "Second Floor"},
+        {"room_number": "010", "label": "WC", "floor": "Ground Floor"},
+        {"room_number": "011", "label": "Bedroom 5", "floor": "Ground Floor"},
+        {"room_number": "012", "label": "Cupboard", "floor": "Ground Floor"},
+        {"room_number": "013", "label": "Hall", "floor": "Ground Floor"},
+        {"room_number": "014", "label": "Kitchen", "floor": "Ground Floor"}
+      ],
+      "samples": ["S001", "S002", "S003"],
+      "stairs_present": true
+    },
+    "N-104153": {
+      "rooms": [
+        {"room_number": "001", "label": "Loft", "floor": "Loft"},
+        {"room_number": "002", "label": "Bathroom", "floor": "Ground Floor"},
+        {"room_number": "003", "label": "Hall", "floor": "Ground Floor"},
+        {"room_number": "004", "label": "Bedroom", "floor": "Ground Floor"},
+        {"room_number": "005", "label": "Office", "floor": "Ground Floor"},
+        {"room_number": "006", "label": "Lounge", "floor": "Ground Floor"},
+        {"room_number": "007", "label": "Kitchen", "floor": "Ground Floor"},
+        {"room_number": "", "label": "External", "floor": "External"}
+      ],
+      "samples": ["S001", "S002", "S003", "S004", "S005"]
+    },
+    "N-105475": {
+      "rooms": [
+        {"room_number": "001", "label": "Front Entrance", "floor": "Ground Floor"},
+        {"room_number": "002", "label": "Kitchen", "floor": "Ground Floor"},
+        {"room_number": "003", "label": "Meter Cupboard", "floor": "Ground Floor"},
+        {"room_number": "004", "label": "Airing Cupboard", "floor": "Ground Floor"},
+        {"room_number": "005", "label": "Lounge", "floor": "Ground Floor"},
+        {"room_number": "006", "label": "Hall", "floor": "Ground Floor"},
+        {"room_number": "007", "label": "Cupboard", "floor": "Ground Floor"},
+        {"room_number": "008", "label": "Bedroom 1", "floor": "Ground Floor"},
+        {"room_number": "009", "label": "Bedroom 2", "floor": "Ground Floor"},
+        {"room_number": "010", "label": "Wetroom", "floor": "Ground Floor"}
+      ],
+      "samples": ["S001", "S002", "S003", "S004", "S005", "S006", "P001"]
+    },
+    "N-104609": {
+      "rooms": [
+        {"room_number": "", "label": "External", "floor": "External"}
+      ],
+      "samples": ["S001"]
+    },
+    "N-104621": {
+      "rooms": [
+        {"room_number": "", "label": "External", "floor": "External"}
+      ],
+      "samples": []
+    },
+    "N-104538": {
+      "rooms": [
+        {"room_number": "", "label": "External", "floor": "External"}
+      ],
+      "samples": []
+    },
+    "N-104542": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": []
+    },
+    "N-104548": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": ["S001"]
+    },
+    "N-104578": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": ["S001"]
+    },
+    "N-104582": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": ["S001"]
+    },
+    "N-104601": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": ["S001"]
+    },
+    "N-104608": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": ["S001"]
+    },
+    "N-104614": {
+      "rooms": [{"room_number": "", "label": "External", "floor": "External"}],
+      "samples": ["S001"]
+    },
+    "N-104791": {
+      "rooms": [
+        {"room_number": "006", "label": "Loft", "floor": "Loft"},
+        {"room_number": "001", "label": "Lounge", "floor": "Ground Floor"},
+        {"room_number": "002", "label": "Hall", "floor": "Ground Floor"},
+        {"room_number": "003", "label": "Bedroom 1", "floor": "Ground Floor"},
+        {"room_number": "004", "label": "Cupboard", "floor": "Ground Floor"},
+        {"room_number": "005", "label": "Bathroom", "floor": "Ground Floor"}
+      ],
+      "samples": ["S001"]
+    },
+    "N-105005": {
+      "rooms": [
+        {"room_number": "001", "label": "Reception", "floor": "Ground Floor"},
+        {"room_number": "002", "label": "Lobby", "floor": "Ground Floor"},
+        {"room_number": "003", "label": "Office", "floor": "Ground Floor"},
+        {"room_number": "004", "label": "Lobby", "floor": "Ground Floor"},
+        {"room_number": "005", "label": "Office", "floor": "Ground Floor"},
+        {"room_number": "006", "label": "Office", "floor": "Ground Floor"},
+        {"room_number": "007", "label": "Office", "floor": "Ground Floor"},
+        {"room_number": "008", "label": "Office", "floor": "Ground Floor"},
+        {"room_number": "009", "label": "U/C", "floor": "Ground Floor"},
+        {"room_number": "010", "label": "Stairs", "floor": "Ground Floor"},
+        {"room_number": "011", "label": "Store", "floor": "First Floor"},
+        {"room_number": "012", "label": "Stairs", "floor": "First Floor"},
+        {"room_number": "013", "label": "Managers Office", "floor": "First Floor"},
+        {"room_number": "014", "label": "Kitchen", "floor": "First Floor"},
+        {"room_number": "015", "label": "WC", "floor": "First Floor"},
+        {"room_number": "016", "label": "Store", "floor": "First Floor"}
+      ],
+      "samples": ["S001"],
+      "stairs_present": true
+    },
+    "N-105278": {
+      "rooms": [
+        {"room_number": "001", "label": "Kitchen", "floor": "Ground Floor"},
+        {"room_number": "002", "label": "Hall", "floor": "Ground Floor"},
+        {"room_number": "003", "label": "Loft", "floor": "Loft"}
+      ],
+      "samples": ["S001"],
+      "stairs_present": true
+    }
+  }
+}

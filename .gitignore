@@ -1,0 +1,157 @@
+# ==============================================================================
+# Acorn Plan Generation — .gitignore
+#
+# Repository contains pipeline CODE only. All data, secrets, large binaries
+# and per-run artifacts are excluded.
+# ==============================================================================
+
+# Secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.yaml
+credentials.json
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+pytest-cache-files-*/
+tmp_pycache_review/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.claude/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# ==============================================================================
+# Data — confidential client floor plans, DO NOT push
+# ==============================================================================
+data/*
+!data/.gitkeep
+!data/images/
+data/images/*
+!data/images/.gitkeep
+Input/
+output/*
+!output/.gitkeep
+!output/visio/
+output/visio/*
+!output/visio/.gitkeep
+!output/cache/
+output/cache/*
+!output/cache/.gitkeep
+!output/reports/
+output/reports/*
+!output/reports/.gitkeep
+acorn_sketches/
+
+# Cleaned + merged training datasets (annotated client sketches)
+training/acorn_clean_v1/
+training/acorn_clean_v1_recanon/
+training/acorn_clean_v3/
+training/acorn_clean_v8/
+training/acorn_clean_merged/
+training/acorn_clean_*/
+training/pool/
+training/auto_annotations/
+training/yolo_annotations/
+training/auto_datasets/
+
+# Raw / re-exported Roboflow zips
+training/*.zip
+Input/*.zip
+
+# Roboflow extraction temp folders
+**/_unzipped/
+
+# Extracted training datasets (large, confidential client floor plans)
+datasets/
+
+# Training runs (per-run weight/log artifacts)
+training/runs/
+training/runs_*/
+runs/
+
+# Build artifacts
+training/full_progress.json
+training/_build_notebook.py
+
+# _archive: keep CODE (.py, .ipynb) but exclude its data
+# (cleaned_annotations.json + pool/images + pool/labels + zips reference
+# real client sketches and shouldn't go to GitHub)
+_archive/output.zip
+_archive/training/cleaned_annotations.json
+_archive/training/full_progress*.json
+_archive/training/pool/
+_archive/training/yolo_acm_only/
+_archive/training/yolo_v2_dataset/
+_archive/training/runs/
+_archive/**/*.pt
+_archive/**/*.pth
+_archive/**/*.zip
+_archive/**/*.json
+
+# ==============================================================================
+# Model weights — large binaries, use GitHub Releases or LFS if needed
+# ==============================================================================
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+*.weights
+*.safetensors
+models/
+!models/.gitkeep
+models/rfdetr/
+models/archive/
+
+# ==============================================================================
+# Misc
+# ==============================================================================
+*.log
+*.tmp
+*.bak
+*.orig
+*.pid
+
+# Local debug/throwaway scripts
+scratch/
+
+# Throwaway file listings
+AllFiles.csv
+
+# Throwaway dev scripts
+scratch/
+
+# Evaluation working outputs (regenerable). KEEP evaluation/truth/ (human gold) + the harness scripts.
+evaluation/cmp/
+evaluation/predictions/
+evaluation/predictions_llm/
+evaluation/reports/
+evaluation/reports_*/
+evaluation/draft_truth/
+
+# Runtime usage state
+logs/*.json
+input/

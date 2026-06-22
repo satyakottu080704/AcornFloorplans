@@ -1,0 +1,103 @@
+{
+  "client_name": "NPH (National Property Holdings)",
+  "client_patterns": [
+    "nph",
+    "national property holdings",
+    "national property"
+  ],
+  "validation_rules": {
+    "scope_requirements": {
+      "min_length": 40,
+      "must_include_keywords": [
+        "property address",
+        "survey scope",
+        "accessible"
+      ],
+      "description": "NPH requires detailed scope documentation"
+    },
+    "photo_requirements": {
+      "minimum_photos": 2,
+      "required_for_000": true,
+      "required_for_999": true,
+      "description": "Photos required for both 000 and 999 items"
+    },
+    "no_access_limit": {
+      "max_items": 5,
+      "fail_if_exceeded": false,
+      "message": "NPH projects should minimize No-Access items. More than 5 requires justification.",
+      "description": "Soft limit on No-Access items with warning"
+    },
+    "material_validations": {
+      "require_pra_scores": true,
+      "require_action_required": true,
+      "description": "All ACM must have complete PRA scoring"
+    },
+    "special_validations": [
+      {
+        "rule": "check_pra_completeness",
+        "description": "Verify all ACM items have PRA scores",
+        "severity": "FAIL"
+      },
+      {
+        "rule": "verify_999_photos",
+        "description": "999 items must have photos",
+        "severity": "WARNING"
+      },
+      {
+        "rule": "check_date_validity",
+        "description": "Survey date must be within last 6 months",
+        "severity": "WARNING"
+      }
+    ]
+  },
+  "auto_populate": {
+    "scope_from_notes": true,
+    "999_generation": true,
+    "pra_defaults": true,
+    "no_access_reasons": true
+  },
+  "field_requirements": {
+    "building_details": {
+      "required": true,
+      "min_length": 25,
+      "description": "Detailed building information required"
+    },
+    "special_instructions": {
+      "required": false,
+      "max_length": 500
+    },
+    "surveyor_name": {
+      "required": true,
+      "validation": "non_empty"
+    },
+    "survey_date": {
+      "required": true,
+      "validation": "valid_date",
+      "max_age_days": 180
+    }
+  },
+  "quality_checks": {
+    "require_qc_review": {
+      "if_no_access_count": 4,
+      "if_missing_photos": true,
+      "if_pra_incomplete": true
+    },
+    "auto_approve_threshold": {
+      "min_confidence": 0.90,
+      "max_no_access": 3,
+      "require_all_pra": true
+    }
+  },
+  "turnaround": {
+    "standard_days": 5,
+    "priority_days": 2,
+    "urgent_days": 1,
+    "description": "NPH turnaround time requirements"
+  },
+  "metadata": {
+    "created": "2025-01-10",
+    "version": "1.0",
+    "contact": "nph-team@example.com",
+    "notes": "Comprehensive validation rules for NPH properties. Focus on PRA completeness and photo requirements."
+  }
+}

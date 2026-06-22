@@ -1,0 +1,67 @@
+{
+  "api": {
+    "default_timeout": 30,
+    "long_operation_timeout": 60,
+    "batch_operation_timeout": 120,
+    "quick_timeout": 10
+  },
+  "browser": {
+    "page_load": 60000,
+    "element_visibility": 30000,
+    "navigation": 45000,
+    "form_submission": 15000,
+    "login": 30000,
+    "search": 20000,
+    "modal_wait": 10000,
+    "file_upload": 30000
+  },
+  "wait_times": {
+    "after_login": 3,
+    "after_navigation": 5,
+    "before_save": 2,
+    "button_click": 1,
+    "form_fill": 0.5,
+    "modal_open": 2,
+    "after_search": 3,
+    "quick_ui_update": 0.5,
+    "after_click": 1,
+    "element_appear": 2,
+    "page_settle": 4
+  },
+  "ai": {
+    "image_analysis": 60,
+    "spell_check": 30,
+    "confidence_scoring": 120,
+    "ollama_default": 60,
+    "openai_timeout": 30,
+    "claude_timeout": 30,
+    "availability_check": 5
+  },
+  "retry": {
+    "max_attempts": 3,
+    "initial_delay": 1,
+    "backoff_multiplier": 2,
+    "max_delay": 30,
+    "retryable_errors": [
+      "TimeoutError",
+      "NetworkError",
+      "ConnectionError",
+      "PlaywrightTimeoutError",
+      "PlaywrightError"
+    ]
+  },
+  "email": {
+    "send_timeout": 30,
+    "connect_timeout": 10,
+    "oauth_timeout": 45
+  },
+  "file_operations": {
+    "download_timeout": 120,
+    "upload_timeout": 120,
+    "read_timeout": 10
+  },
+  "n8n": {
+    "webhook_timeout": 10,
+    "poll_interval": 30
+  }
+}

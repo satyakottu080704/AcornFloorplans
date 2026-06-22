@@ -1,0 +1,84 @@
+{
+  "plan_types": {
+    "small_residential": {
+      "room_count_range": [3, 9],
+      "floors": ["Ground Floor"],
+      "room_names": ["LOBBY", "KITCHEN", "LOUNGE", "BATHROOM", "BEDROOM", "CPD", "HALL", "WC", "STORE", "CUPBOARD"],
+      "numbering": "3-digit-sequential",
+      "pages": 1
+    },
+    "medium_residential": {
+      "room_count_range": [10, 20],
+      "floors": ["Ground Floor", "First Floor", "Loft"],
+      "room_names": ["LOBBY", "KITCHEN", "LOUNGE", "BATHROOM", "BEDROOM", "BEDROOM 2", "BEDROOM 3",
+                     "BEDROOM 4", "CPD", "LANDING", "WC", "HALL", "HALLWAY", "STAIRS", "AIRING CUPBOARD",
+                     "STORE", "LOFT", "PORCH", "DINING ROOM", "UTILITY"],
+      "numbering": "3-digit-sequential",
+      "pages": 2
+    },
+    "large_commercial": {
+      "room_count_range": [20, 999],
+      "floors": ["Ground Floor"],
+      "room_names": ["OFFICE", "CORRIDOR", "WC", "KITCHEN", "STORE", "RECEPTION", "MEETING ROOM",
+                     "PLANT ROOM", "BOILER ROOM", "LIFT LOBBY", "STAIRWELL", "SERVER ROOM"],
+      "numbering": "alphanumeric",
+      "pages": "auto"
+    },
+    "cardtronics": {
+      "room_count_range": [1, 10],
+      "floors": ["Ground Floor"],
+      "room_names": ["SHOP FLOOR", "CASINO", "WC", "STORE", "CUPBOARD", "TILL", "OFFICE",
+                     "STAFF ROOM", "CORRIDOR", "FRONT OF SHOP"],
+      "numbering": "3-digit-sequential",
+      "special_markers": ["ATM", "DB", "CABLE_ROUTE"],
+      "pages": 1
+    }
+  },
+  "sample_patterns": {
+    "new_sample": "S followed by 1-3 digits (S01, S001)",
+    "cross_reference": "Ref S followed by 1-3 digits (Ref S001) — NOT a new sample, same material in different room",
+    "preliminary": "P followed by 1-3 digits (P001) — preliminary/bulk sample",
+    "acm_positive": "+ symbol next to sample label means confirmed asbestos",
+    "common_materials": [
+      "Textured coating to ceiling",
+      "Textured coating to walls",
+      "Thermoplastic floor tiles and bitumen adhesive",
+      "Bitumen adhesive to concrete floor under carpet",
+      "Cement undercloak to gable end",
+      "Insulating board",
+      "Vinyl tiles to floor",
+      "Cement window sills",
+      "Ceramic wall tile adhesive",
+      "Putty to window frames",
+      "Mastic to bath panel",
+      "Floor tiles",
+      "Fibreboard"
+    ],
+    "material_abbreviations": {
+      "FT": "Floor tiles",
+      "FB": "Fibreboard",
+      "IB": "Insulating board",
+      "TC": "Textured coating",
+      "Vinyl": "Vinyl tiles to floor",
+      "Mastic": "Mastic",
+      "Cement": "Cement",
+      "Putty": "Putty to window frames"
+    }
+  },
+  "caveat_patterns": [
+    "No access at tenants request",
+    "Unable to gain access at this time",
+    "No access was gained",
+    "Limited damage to",
+    "No access due to",
+    "Could not access",
+    "Not accessible"
+  ],
+  "stair_indicators": ["Up", "Down"],
+  "room_status": {
+    "no_access": "Blue fill",
+    "acm_positive": "Red/pink fill or blue diagonal hatching",
+    "clear": "White fill / NAD",
+    "out_of_scope": "Grey hatching"
+  }
+}

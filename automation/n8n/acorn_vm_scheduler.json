@@ -1,0 +1,61 @@
+{
+  "id": "acornVmScheduler1",
+  "name": "Acorn VM — Scheduler (business hours)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "45 6 * * 1-5" } ] } },
+      "id": "11110000-0000-0000-0000-000000000001",
+      "name": "Start 06:45 (Mon-Fri)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [640, 320]
+    },
+    {
+      "parameters": {
+        "url": "https://ec2.eu-west-2.amazonaws.com/?Action=StartInstances&InstanceId.1=i-0b8db625757ebd89d&Version=2016-11-15",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws",
+        "options": {}
+      },
+      "id": "11110000-0000-0000-0000-000000000002",
+      "name": "Start VM (EC2)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 320],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "credentials": { "aws": { "id": "b3wbrZIHg5FfjeEp", "name": "Acorn AWS Autoscale" } }
+    },
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "0 19 * * 1-5" } ] } },
+      "id": "11110000-0000-0000-0000-000000000003",
+      "name": "Stop 19:00 (Mon-Fri)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [640, 560]
+    },
+    {
+      "parameters": {
+        "url": "https://ec2.eu-west-2.amazonaws.com/?Action=StopInstances&InstanceId.1=i-0b8db625757ebd89d&Version=2016-11-15",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws",
+        "options": {}
+      },
+      "id": "11110000-0000-0000-0000-000000000004",
+      "name": "Stop VM (EC2)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 560],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "credentials": { "aws": { "id": "b3wbrZIHg5FfjeEp", "name": "Acorn AWS Autoscale" } }
+    }
+  ],
+  "connections": {
+    "Start 06:45 (Mon-Fri)": { "main": [[{ "node": "Start VM (EC2)", "type": "main", "index": 0 }]] },
+    "Stop 19:00 (Mon-Fri)": { "main": [[{ "node": "Stop VM (EC2)", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

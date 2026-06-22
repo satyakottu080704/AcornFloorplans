@@ -1,0 +1,65 @@
+{
+  "client_name": "Cardtronics",
+  "client_patterns": [
+    "cardtronics",
+    "atm",
+    "cash machine"
+  ],
+  "validation_rules": {
+    "scope_template": {
+      "enabled": true,
+      "template": "Visual inspection of ATM at {address}. Survey includes accessible areas around ATM unit, cable routes if visible.",
+      "required_fields": [
+        "address"
+      ],
+      "description": "Cardtronics requires specific scope format for ATM surveys"
+    },
+    "photo_requirements": {
+      "minimum_photos": 2,
+      "required_views": [
+        "front",
+        "cable_route"
+      ],
+      "description": "Must include front view and cable route photos"
+    },
+    "no_access_limit": null,
+    "special_validations": [
+      {
+        "rule": "check_atm_type",
+        "description": "Must identify ATM type (indoor/outdoor/drive-through)",
+        "severity": "WARNING"
+      },
+      {
+        "rule": "verify_location_access",
+        "description": "Confirm access to ATM location was granted",
+        "severity": "FAIL"
+      }
+    ]
+  },
+  "auto_populate": {
+    "scope_from_notes": false,
+    "999_generation": true,
+    "pra_defaults": true,
+    "no_access_reasons": true
+  },
+  "field_requirements": {
+    "building_details": {
+      "required": true,
+      "min_length": 20,
+      "must_include": [
+        "ATM location",
+        "access notes"
+      ]
+    },
+    "surveyor_name": {
+      "required": true,
+      "validation": "non_empty"
+    }
+  },
+  "metadata": {
+    "created": "2025-01-10",
+    "version": "1.0",
+    "contact": "cardtronics-team@example.com",
+    "notes": "ATM-specific validation rules for Cardtronics projects"
+  }
+}

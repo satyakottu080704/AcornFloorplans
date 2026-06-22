@@ -1,0 +1,484 @@
+[
+  {
+    "updatedAt": "2026-06-15T18:27:00.792Z",
+    "createdAt": "2026-06-10T22:36:21.526Z",
+    "id": "u63BSxUIVvTTub0z",
+    "name": "Acorn Plans — Inbox → Automated Drawing",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "content": "## Wates AI Draft — n8n feeds the sketch, container draws\n\n**Flow:** poll the Plans inbox → pull the N-number → take the first image attachment → download it → SSH-upload it to the server `/tmp` → `docker cp` into the **plangenration** container → `docker exec … src/process_plan.py \"<N>\" --image /tmp/<file>` → mark the email read on success.\n\nThe container does the gating and the work: Wates **AND** status **Scheduled** → draw floors → upload VSDX to the AT yellow folder + SharePoint → status → **Plans Drawn**. It never reads the mailbox; n8n supplies the image.\n\n### Credentials\n- Outlook: **Plans-Acornhealthandsafety**\n- SSH: **Acorn n8n Server SSH**\n\n### ⚠️ Verify in the UI (SSH file node schema varies by version)\nOn **Upload sketch (SSH)**: Resource = File, Operation = Upload, Input Binary Field = `data`, Target Directory = `/tmp`. The SSH user must be able to write `/tmp` (n8nuser cannot write /opt/acorn — that is why we use /tmp).\n\n### Mark-read rule\nThe container prints ONE JSON line. stdout matching `\"ok\": true` or `\"skipped\": true` → mark read; anything else → leave unread to retry next poll.",
+          "height": 440,
+          "width": 480
+        },
+        "id": "05adf326-9b6b-4e0a-bd35-e9baa21715f1",
+        "name": "README",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 15
+              }
+            ]
+          }
+        },
+        "id": "16989a5e-4278-4781-96c3-04e0f421c8b8",
+        "name": "Every 15 min",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          400,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 1,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.microsoftOutlook",
+        "typeVersion": 2,
+        "position": [
+          624,
+          352
+        ],
+        "id": "10cf8fdb-b16c-4ea4-ab1a-1766aba0e9a6",
+        "name": "Get unread Plans emails",
+        "webhookId": "f649f11e-c672-4691-b83d-5071570cda02",
+        "credentials": {
+          "microsoftOutlookOAuth2Api": {
+            "id": "FNq1tabrcjylXbSd",
+            "name": "Plans-Acornhealthandsafety"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Pull the N-number from each plan email; drop emails without one.\nconst out = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const j = items[i].json;\n  const text = `${j.subject || ''} ${j.bodyPreview || ''}`;\n  const m = text.match(/N-\\d{4,10}/i);\n  if (!m) continue;\n  out.push({\n    json: { projectNumber: m[0].toUpperCase(), messageId: j.id, subject: j.subject || '' },\n    pairedItem: { item: i },\n  });\n}\nreturn out;"
+        },
+        "id": "6f13956c-299e-4cf5-ad65-744a0045bbcc",
+        "name": "Extract N-number",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          848,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "messageAttachment",
+          "operation": "getAll",
+          "messageId": {
+            "__rl": true,
+            "value": "={{ $json.messageId }}",
+            "mode": "id"
+          },
+          "returnAll": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.microsoftOutlook",
+        "typeVersion": 2,
+        "position": [
+          1072,
+          352
+        ],
+        "id": "bada0b6a-37e1-490d-b2a9-7cc6ee964913",
+        "name": "Get attachments",
+        "webhookId": "2f806370-eec3-4e53-a281-111265d72d33",
+        "credentials": {
+          "microsoftOutlookOAuth2Api": {
+            "id": "FNq1tabrcjylXbSd",
+            "name": "Plans-Acornhealthandsafety"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            },
+            "conditions": [
+              {
+                "id": "cond_img",
+                "leftValue": "={{ $json.name }}",
+                "rightValue": "\\.(jpe?g|png)$",
+                "operator": {
+                  "type": "string",
+                  "operation": "regex"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "75adb034-91ca-45d4-9da8-417a1fad0033",
+        "name": "Keep image attachments",
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2,
+        "position": [
+          1280,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Keep only the FIRST image per project (multi-image emails).\nconst out = [];\nconst seen = new Set();\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  let key;\n  try { key = $('Extract N-number').itemMatching(i).json.projectNumber; }\n  catch (e) { key = items[i].json.id; }\n  if (seen.has(key)) continue;\n  seen.add(key);\n  out.push(items[i]);\n}\nreturn out;"
+        },
+        "id": "520a5b3d-30a6-4efd-87f9-398922b83ba1",
+        "name": "First image per project",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1504,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "messageAttachment",
+          "operation": "download",
+          "messageId": {
+            "__rl": true,
+            "value": "={{ $('Extract N-number').item.json.messageId }}",
+            "mode": "id"
+          },
+          "attachmentId": "={{ $json.id }}"
+        },
+        "type": "n8n-nodes-base.microsoftOutlook",
+        "typeVersion": 2,
+        "position": [
+          1728,
+          352
+        ],
+        "id": "bc84f385-9c13-4244-91af-6941e80484ca",
+        "name": "Download sketch",
+        "webhookId": "ac5411b0-8ce5-4df9-b537-620a87e90a2b",
+        "credentials": {
+          "microsoftOutlookOAuth2Api": {
+            "id": "FNq1tabrcjylXbSd",
+            "name": "Plans-Acornhealthandsafety"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Compute ONE per-project filename and carry it in json so every downstream\n// node (SSH upload + SSH command) references the same value. Generic\n// 'Image.jpeg' attachments would otherwise collide across projects.\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const pn = $('Extract N-number').itemMatching(i).json.projectNumber;\n  const b = items[i].binary && items[i].binary.data;\n  const ext = ((b && b.fileName ? b.fileName : 'x.jpg').split('.').pop() || 'jpg').toLowerCase();\n  const sketchFile = `${pn}_sketch.${ext}`;\n  if (b) b.fileName = sketchFile;\n  items[i].json = { ...items[i].json, projectNumber: pn, sketchFile };\n}\nreturn items;"
+        },
+        "id": "e297f978-869f-4d85-b956-bd92ce15ba9c",
+        "name": "Name sketch",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1952,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "path": "/tmp",
+          "options": {}
+        },
+        "id": "a9ad4ac6-a60e-4d37-83ab-146f7db1a784",
+        "name": "Upload sketch (SSH)",
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          2160,
+          352
+        ],
+        "credentials": {
+          "sshPassword": {
+            "id": "ijqPYjkPkcQNqduL",
+            "name": "Acorn n8n Server SSH"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "command": "=docker cp \"/tmp/{{ $('Name sketch').item.json.sketchFile }}\" plangenration:/tmp/ && docker exec plangenration python src/process_plan.py \"{{ $('Name sketch').item.json.projectNumber }}\" --image \"/tmp/{{ $('Name sketch').item.json.sketchFile }}\""
+        },
+        "id": "ef4e8f67-ec71-4b00-82cf-d3f55958698e",
+        "name": "Draw plan in container (SSH)",
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          2384,
+          352
+        ],
+        "credentials": {
+          "sshPassword": {
+            "id": "ijqPYjkPkcQNqduL",
+            "name": "Acorn n8n Server SSH"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            },
+            "conditions": [
+              {
+                "id": "cond_ok",
+                "leftValue": "={{ /\"(ok|skipped)\":\\s*true/.test($json.stdout || '') }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "a4bb3066-f1c0-45f7-a2a1-c15c387472d5",
+        "name": "Handled (mark read)?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2608,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "messageId": {
+            "__rl": true,
+            "value": "={{ $('Extract N-number').item.json.messageId }}",
+            "mode": "id"
+          },
+          "updateFields": {
+            "isRead": true
+          }
+        },
+        "type": "n8n-nodes-base.microsoftOutlook",
+        "typeVersion": 2,
+        "position": [
+          2832,
+          272
+        ],
+        "id": "dd6d173f-86bf-45f1-8686-205a99eb458a",
+        "name": "Mark email as read",
+        "webhookId": "d43ac0c2-a99a-48d5-be03-effc76e36081",
+        "credentials": {
+          "microsoftOutlookOAuth2Api": {
+            "id": "FNq1tabrcjylXbSd",
+            "name": "Plans-Acornhealthandsafety"
+          }
+        },
+        "disabled": true,
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {},
+        "id": "11c79f1a-4506-4eab-836d-efc4a24a6b4e",
+        "name": "Leave unread — retry next poll",
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          2832,
+          448
+        ]
+      }
+    ],
+    "connections": {
+      "Every 15 min": {
+        "main": [
+          [
+            {
+              "node": "Get unread Plans emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get unread Plans emails": {
+        "main": [
+          [
+            {
+              "node": "Extract N-number",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract N-number": {
+        "main": [
+          [
+            {
+              "node": "Get attachments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get attachments": {
+        "main": [
+          [
+            {
+              "node": "Keep image attachments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Keep image attachments": {
+        "main": [
+          [
+            {
+              "node": "First image per project",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "First image per project": {
+        "main": [
+          [
+            {
+              "node": "Download sketch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download sketch": {
+        "main": [
+          [
+            {
+              "node": "Name sketch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Name sketch": {
+        "main": [
+          [
+            {
+              "node": "Upload sketch (SSH)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload sketch (SSH)": {
+        "main": [
+          [
+            {
+              "node": "Draw plan in container (SSH)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Draw plan in container (SSH)": {
+        "main": [
+          [
+            {
+              "node": "Handled (mark read)?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Handled (mark read)?": {
+        "main": [
+          [
+            {
+              "node": "Mark email as read",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Leave unread — retry next poll",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": {
+      "node:Every 15 min": {
+        "recurrenceRules": []
+      }
+    },
+    "meta": null,
+    "pinData": {},
+    "versionId": "56a7c3ea-2b8c-4ed5-87d2-eccc206f7fb7",
+    "activeVersionId": "435f8f00-0322-414d-a77a-e825177d8886",
+    "versionCounter": 19,
+    "triggerCount": 1,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-06-10T22:36:21.535Z",
+        "createdAt": "2026-06-10T22:36:21.535Z",
+        "role": "workflow:owner",
+        "workflowId": "u63BSxUIVvTTub0z",
+        "projectId": "XSWF09XAOH2CT0O3",
+        "project": {
+          "updatedAt": "2026-01-02T15:26:57.175Z",
+          "createdAt": "2025-11-06T21:16:21.295Z",
+          "id": "XSWF09XAOH2CT0O3",
+          "name": "Surya Kambala <software@acornasbestos.co.uk>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "a0019e04-d519-454a-b57f-b86f871b64c0"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": null,
+      "description": null
+    }
+  }
+]

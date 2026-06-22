@@ -1,0 +1,12 @@
+models/*.pt filter=lfs diff=lfs merge=lfs -text
+models/*.pth filter=lfs diff=lfs merge=lfs -text
+
+# Normalize text line endings to LF (Linux container needs LF; prevents the
+# CRLF/LF drift that caused gemini_*.py checksum mismatches).
+*.py   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.txt  text eol=lf
+*.sh   text eol=lf
